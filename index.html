@@ -51,6 +51,8 @@
       justify-content: center;
       opacity: 1;
       transition: opacity 0.5s;
+      position: relative;
+      z-index: 10;
     }
 
     button {
@@ -74,7 +76,6 @@
     .fullscreen { background-color: gray; color: white; }
     .fullscreen.active { background-color: #111; color: #aaa; }
     .music { background-color: purple; color: white; }
-    .extra { background-color: darkcyan; color: white; }
     .timer-btn { background-color: teal; color: white; }
 
     #timer {
@@ -119,7 +120,6 @@
     <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto</button>
     <button class="fullscreen" id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
-    <button class="extra" onclick="toggleMute()">Mute</button>
     <button class="timer-btn" onclick="startGameTimer(60)">1 Minute Timer</button>
     <button class="timer-btn" onclick="startGameTimer(120)">2 Minute Timer</button>
   </div>
@@ -258,10 +258,6 @@
       }
     }
 
-    function toggleMute() {
-      muted = !muted;
-    }
-
     function startGameTimer(duration) {
       clearInterval(gameTimerInterval);
       let timeLeft = duration;
@@ -293,16 +289,30 @@
     }
 
     function hideButtons() {
-      buttonPanel.style.opacity = '0';
+      // Hide all except fullscreen button
+      for (const btn of buttonPanel.children) {
+        if (btn.id !== 'fullscreenBtn') {
+          btn.style.opacity = '0';
+          btn.style.pointerEvents = 'none';
+        }
+      }
     }
 
     function showButtons() {
       if (hideOnFullscreen) {
-        buttonPanel.style.opacity = '1';
+        // Show all buttons
+        for (const btn of buttonPanel.children) {
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        }
         hideOnFullscreen = false;
         return;
       }
-      buttonPanel.style.opacity = '1';
+      // Show all except fullscreen button stays fully visible anyway
+      for (const btn of buttonPanel.children) {
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+      }
       clearTimeout(hideButtonsTimer);
       hideButtonsTimer = setTimeout(hideButtons, 3000);
     }
