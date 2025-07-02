@@ -122,7 +122,7 @@
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
   </div>
 
-  <!-- 🔥 New Bottom Left Buttons -->
+  <!-- 🔥 Bottom Left Buttons -->
   <div class="bottom-left">
     <button class="extra" onclick="playGameStart()">Game Start</button>
     <button class="extra" onclick="playEliminated()">Eliminated</button>
@@ -130,13 +130,14 @@
     <button class="extra" onclick="resetGame()">Reset Game</button>
   </div>
 
-  <!-- Sounds -->
-  <audio id="greenVoice" src="https://upload.wikimedia.org/wikipedia/commons/7/76/Squid_Game_Green_Light.ogg"></audio>
-  <audio id="redVoice" src="https://upload.wikimedia.org/wikipedia/commons/8/80/Squid_Game_Red_Light.ogg"></audio>
-  <audio id="bgMusic" src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Squid_Game_Theme.ogg" loop></audio>
+  <!-- 🔊 Local Sound Files -->
+  <audio id="greenVoice" src="greenlight.mp3" preload="auto"></audio>
+  <audio id="redVoice" src="redlight.mp3" preload="auto"></audio>
+  <audio id="gameStartSound" src="gamestart.mp3" preload="auto"></audio>
+  <audio id="eliminatedSound" src="eliminated.mp3" preload="auto"></audio>
 
-  <audio id="gameStartSound" src="https://cdn.pixabay.com/audio/2022/02/14/audio_7a1a9a1812.mp3"></audio>
-  <audio id="eliminatedSound" src="https://cdn.pixabay.com/audio/2022/03/08/audio_7c9eb953cc.mp3"></audio>
+  <!-- 🎵 Optional Background Music -->
+  <audio id="bgMusic" src="backgroundmusic.mp3" preload="auto" loop></audio>
 
   <script>
     const status = document.getElementById('status');
@@ -167,7 +168,6 @@
       robot.src = robotBack;
       if (!muted) {
         greenVoice.play();
-        eliminatedSound.play(); // 🔥 Linked to your request
       }
       clearTimer();
     }
@@ -329,9 +329,6 @@
       }
     });
   </script>
-
-</body>
-</html>
 
 </body>
 </html>
