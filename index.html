@@ -70,35 +70,13 @@
       transform: scale(1.05);
     }
 
-    .start {
-      background-color: green;
-      color: white;
-    }
-
-    .stop {
-      background-color: red;
-      color: white;
-    }
-
-    .toggle-auto {
-      background-color: orange;
-      color: black;
-    }
-
-    .fullscreen {
-      background-color: gray;
-      color: white;
-    }
-
-    .game-timer {
-      background-color: blue;
-      color: white;
-    }
-
-    .music {
-      background-color: purple;
-      color: white;
-    }
+    .start { background-color: green; color: white; }
+    .stop { background-color: red; color: white; }
+    .toggle-auto { background-color: orange; color: black; }
+    .fullscreen { background-color: gray; color: white; }
+    .game-timer { background-color: blue; color: white; }
+    .music { background-color: purple; color: white; }
+    .extra { background-color: darkcyan; color: white; }
 
     #timer {
       font-size: 1.5rem;
@@ -114,6 +92,15 @@
       color: #ff0000;
       text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
       z-index: 1000;
+    }
+
+    .bottom-left {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
   </style>
 </head>
@@ -135,10 +122,21 @@
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
   </div>
 
+  <!-- 🔥 New Bottom Left Buttons -->
+  <div class="bottom-left">
+    <button class="extra" onclick="playGameStart()">Game Start</button>
+    <button class="extra" onclick="playEliminated()">Eliminated</button>
+    <button class="extra" onclick="toggleMute()">Mute</button>
+    <button class="extra" onclick="resetGame()">Reset Game</button>
+  </div>
+
   <!-- Sounds -->
   <audio id="greenVoice" src="https://upload.wikimedia.org/wikipedia/commons/7/76/Squid_Game_Green_Light.ogg"></audio>
   <audio id="redVoice" src="https://upload.wikimedia.org/wikipedia/commons/8/80/Squid_Game_Red_Light.ogg"></audio>
   <audio id="bgMusic" src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Squid_Game_Theme.ogg" loop></audio>
+
+  <audio id="gameStartSound" src="https://cdn.pixabay.com/audio/2022/02/14/audio_7a1a9a1812.mp3"></audio>
+  <audio id="eliminatedSound" src="https://cdn.pixabay.com/audio/2022/03/08/audio_7c9eb953cc.mp3"></audio>
 
   <script>
     const status = document.getElementById('status');
@@ -149,12 +147,15 @@
     const greenVoice = document.getElementById('greenVoice');
     const redVoice = document.getElementById('redVoice');
     const bgMusic = document.getElementById('bgMusic');
+    const gameStartSound = document.getElementById('gameStartSound');
+    const eliminatedSound = document.getElementById('eliminatedSound');
 
     let autoMode = false;
     let autoTimeout = null;
     let gameTimerInterval = null;
     let gameActive = true;
     let musicPlaying = false;
+    let muted = false;
 
     const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
     const robotBack = "https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902";
@@ -164,7 +165,10 @@
       status.textContent = 'Green Light';
       status.className = 'green';
       robot.src = robotBack;
-      greenVoice.play();
+      if (!muted) {
+        greenVoice.play();
+        eliminatedSound.play(); // 🔥 Linked to your request
+      }
       clearTimer();
     }
 
@@ -173,7 +177,7 @@
       status.textContent = 'Red Light';
       status.className = 'red';
       robot.src = robotFacing;
-      redVoice.play();
+      if (!muted) redVoice.play();
       clearTimer();
     }
 
@@ -273,6 +277,30 @@
       }
     }
 
+    // 🔥 Bottom Left Button Functions
+    function playGameStart() {
+      if (!muted) gameStartSound.play();
+    }
+
+    function playEliminated() {
+      if (!muted) eliminatedSound.play();
+    }
+
+    function toggleMute() {
+      muted = !muted;
+    }
+
+    function resetGame() {
+      clearInterval(gameTimerInterval);
+      clearTimeout(autoTimeout);
+      gameTimer.textContent = '';
+      timer.textContent = '';
+      status.textContent = 'Green Light';
+      status.className = 'green';
+      robot.src = robotBack;
+      gameActive = true;
+    }
+
     // ✅ Keyboard controls
     document.addEventListener('keydown', (e) => {
       if (!gameActive) return;
@@ -304,7 +332,6 @@
 
 </body>
 </html>
-
 
 </body>
 </html>
