@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Light Green Light Game</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #status {
+      font-size: 10rem;
+      margin-bottom: 20px;
+      transition: color 0.5s, transform 0.3s;
+    }
+
+    .green {
+      color: #00ff00;
+      text-shadow: 0 0 40px #00ff00;
+    }
+
+    .red {
+      color: #ff0000;
+      text-shadow: 0 0 40px #ff0000;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 15px 30px;
+      margin: 5px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      filter: brightness(1.2);
+      transform: scale(1.05);
+    }
+
+    .start {
+      background-color: green;
+      color: white;
+    }
+
+    .stop {
+      background-color: red;
+      color: white;
+    }
+
+    .toggle-auto {
+      background-color: orange;
+      color: black;
+    }
+
+    .fullscreen {
+      background-color: gray;
+      color: white;
+    }
+
+    #timer {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="status" class="green">Green Light</div>
+  <div id="timer"></div>
+
+  <div class="buttons">
+    <button class="start" onclick="setGreen()">Green Light</button>
+    <button class="stop" onclick="setRed()">Red Light</button>
+    <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto Mode</button>
+    <button class="fullscreen" onclick="toggleFullscreen()">Fullscreen</button>
+  </div>
+
+  <!-- Sounds -->
+  <audio id="greenSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6133e1c19c.mp3?filename=game-notification-132651.mp3"></audio>
+  <audio id="redSound" src="https://cdn.pixabay.com/download/audio/2022/03/16/audio_5e356937f4.mp3?filename=gunshot-132706.mp3"></audio>
+  <audio id="dollSound" src="https://cdn.pixabay.com/download/audio/2022/03/16/audio_c872ba1b86.mp3?filename=creepy-voice-saying-red-light-green-light-132685.mp3"></audio>
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/17/audio_05d2cc6056.mp3?filename=horror-background-132757.mp3" loop></audio>
+
+  <script>
+    const status = document.getElementById('status');
+    const timer = document.getElementById('timer');
+
+    const greenSound = document.getElementById('greenSound');
+    const redSound = document.getElementById('redSound');
+    const dollSound = document.getElementById('dollSound');
+    const bgMusic = document.getElementById('bgMusic');
+
+    let autoMode = false;
+    let autoTimeout = null;
+
+    // Play background music on load
+    window.onload = () => {
+      bgMusic.volume = 0.2;
+      bgMusic.play().catch(()=>{}); // ignore autoplay block
+    };
+
+    function setGreen() {
+      status.textContent = 'Green Light';
+      status.className = 'green';
+      greenSound.play();
+      clearTimer();
+    }
+
+    function setRed() {
+      status.textContent = 'Red Light';
+      status.className = 'red';
+      dollSound.play();
+      redSound.play();
+      clearTimer();
+    }
+
+    function toggleAuto() {
+      autoMode = !autoMode;
+      if (autoMode) {
+        startAutoSwitch();
+      } else {
+        clearTimeout(autoTimeout);
+        timer.textContent = '';
+      }
+    }
+
+    function startAutoSwitch() {
+      const current = status.textContent;
+      const next = current === 'Green Light' ? 'Red Light' : 'Green Light';
+      if (next === 'Red Light') {
+        setRed();
+      } else {
+        setGreen();
+      }
+
+      let duration = Math.floor(Math.random() * 5) + 3; // 3 to 7 seconds
+      startTimer(duration);
+
+      autoTimeout = setTimeout(() => {
+        startAutoSwitch();
+      }, duration * 1000);
+    }
+
+    function startTimer(seconds) {
+      let remaining = seconds;
+      timer.textContent = `Next: ${remaining}s`;
+      const interval = setInterval(() => {
+        remaining--;
+        timer.textContent = `Next: ${remaining}s`;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          timer.textContent = '';
+        }
+      }, 1000);
+    }
+
+    function clearTimer() {
+      timer.textContent = '';
+      clearTimeout(autoTimeout);
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Spacebar toggles
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        if (status.textContent === 'Green Light') {
+          setRed();
+        } else {
+          setGreen();
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
