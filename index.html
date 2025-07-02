@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Red Light Green Light Game</title>
+  <title>Red Light Green Light - Squid Game</title>
   <style>
     body {
       margin: 0;
@@ -20,19 +20,26 @@
     }
 
     #status {
-      font-size: 10rem;
-      margin-bottom: 20px;
-      transition: color 0.5s, transform 0.3s;
+      font-size: 6rem;
+      margin: 10px 0;
+      transition: color 0.5s;
     }
 
     .green {
       color: #00ff00;
-      text-shadow: 0 0 40px #00ff00;
+      text-shadow: 0 0 30px #00ff00;
     }
 
     .red {
       color: #ff0000;
-      text-shadow: 0 0 40px #ff0000;
+      text-shadow: 0 0 30px #ff0000;
+    }
+
+    #robot {
+      width: 350px;
+      height: auto;
+      transition: transform 1s ease;
+      margin-bottom: 20px;
     }
 
     .buttons {
@@ -44,7 +51,6 @@
 
     button {
       padding: 15px 30px;
-      margin: 5px;
       font-size: 1.2rem;
       border: none;
       border-radius: 10px;
@@ -78,12 +84,14 @@
     }
 
     #timer {
-      font-size: 2rem;
-      margin-bottom: 20px;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
+
+  <img id="robot" src="https://i.imgur.com/J2gR9lC.png" alt="Robot">
 
   <div id="status" class="green">Green Light</div>
   <div id="timer"></div>
@@ -104,6 +112,7 @@
   <script>
     const status = document.getElementById('status');
     const timer = document.getElementById('timer');
+    const robot = document.getElementById('robot');
 
     const greenSound = document.getElementById('greenSound');
     const redSound = document.getElementById('redSound');
@@ -113,15 +122,20 @@
     let autoMode = false;
     let autoTimeout = null;
 
-    // Play background music on load
+    // Robot image URLs
+    const robotFacing = "https://i.imgur.com/J2gR9lC.png"; // Doll facing forward (watching)
+    const robotBack = "https://i.imgur.com/pHjGEnP.png"; // Doll back turned
+
+    // Start background music
     window.onload = () => {
       bgMusic.volume = 0.2;
-      bgMusic.play().catch(()=>{}); // ignore autoplay block
+      bgMusic.play().catch(()=>{});
     };
 
     function setGreen() {
       status.textContent = 'Green Light';
       status.className = 'green';
+      robot.src = robotBack;
       greenSound.play();
       clearTimer();
     }
@@ -129,6 +143,7 @@
     function setRed() {
       status.textContent = 'Red Light';
       status.className = 'red';
+      robot.src = robotFacing;
       dollSound.play();
       redSound.play();
       clearTimer();
@@ -201,3 +216,4 @@
 
 </body>
 </html>
+
