@@ -42,3 +42,241 @@
 
     #robot {
       width: 350px;
+      height: auto;
+      transition: transform 1s ease;
+      margin-bottom: 20px;
+      border-radius: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      filter: brightness(1.2);
+      transform: scale(1.05);
+    }
+
+    .start {
+      background-color: green;
+      color: white;
+    }
+
+    .stop {
+      background-color: red;
+      color: white;
+    }
+
+    .toggle-auto {
+      background-color: orange;
+      color: black;
+    }
+
+    .fullscreen {
+      background-color: gray;
+      color: white;
+    }
+
+    .game-timer {
+      background-color: blue;
+      color: white;
+    }
+
+    #timer, #gameTimer {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <img id="robot" src="https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902" alt="Robot">
+
+  <div id="status" class="green">Green Light</div>
+  <div id="timer"></div>
+  <div id="gameTimer"></div>
+
+  <div class="buttons">
+    <button class="start" onclick="setGreen()">Green Light</button>
+    <button class="stop" onclick="setRed()">Red Light</button>
+    <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto Mode</button>
+    <button class="fullscreen" onclick="toggleFullscreen()">Fullscreen</button>
+    <button class="game-timer" onclick="startGameTimer(60)">1 Min Timer</button>
+    <button class="game-timer" onclick="startGameTimer(120)">2 Min Timer</button>
+  </div>
+
+  <!-- Sounds -->
+  <audio id="greenSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6133e1c19c.mp3?filename=game-notification-132651.mp3"></audio>
+  <audio id="redSound" src="https://cdn.pixabay.com/download/audio/2022/03/16/audio_5e356937f4.mp3?filename=gunshot-132706.mp3"></audio>
+  <audio id="dollSound" src="https://cdn.pixabay.com/download/audio/2022/03/16/audio_c872ba1b86.mp3?filename=creepy-voice-saying-red-light-green-light-132685.mp3"></audio>
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/17/audio_05d2cc6056.mp3?filename=horror-background-132757.mp3" loop></audio>
+
+  <script>
+    const status = document.getElementById('status');
+    const timer = document.getElementById('timer');
+    const gameTimer = document.getElementById('gameTimer');
+    const robot = document.getElementById('robot');
+
+    const greenSound = document.getElementById('greenSound');
+    const redSound = document.getElementById('redSound');
+    const dollSound = document.getElementById('dollSound');
+    const bgMusic = document.getElementById('bgMusic');
+
+    let autoMode = false;
+    let autoTimeout = null;
+    let gameTimerInterval = null;
+    let gameActive = true;
+
+    const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
+    const robotBack = "https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902";
+
+    window.onload = () => {
+      bgMusic.volume = 0.2;
+      bgMusic.play().catch(()=>{});
+    };
+
+    function setGreen() {
+      if (!gameActive) return;
+      status.textContent = 'Green Light';
+      status.className = 'green';
+      robot.src = robotBack;
+      greenSound.play();
+      clearTimer();
+    }
+
+    function setRed() {
+      if (!gameActive) return;
+      status.textContent = 'Red Light';
+      status.className = 'red';
+      robot.src = robotFacing;
+      dollSound.play();
+      redSound.play();
+      clearTimer();
+    }
+
+    function toggleAuto() {
+      if (!gameActive) return;
+      autoMode = !autoMode;
+      if (autoMode) {
+        startAutoSwitch();
+      } else {
+        clearTimeout(autoTimeout);
+        timer.textContent = '';
+      }
+    }
+
+    function startAutoSwitch() {
+      const current = status.textContent;
+      const next = current === 'Green Light' ? 'Red Light' : 'Green Light';
+      if (next === 'Red Light') {
+        setRed();
+      } else {
+        setGreen();
+      }
+
+      let duration = Math.floor(Math.random() * 5) + 3;
+      startTimer(duration);
+
+      autoTimeout = setTimeout(() => {
+        startAutoSwitch();
+      }, duration * 1000);
+    }
+
+    function startTimer(seconds) {
+      let remaining = seconds;
+      timer.textContent = `Next switch: ${remaining}s`;
+      const interval = setInterval(() => {
+        remaining--;
+        timer.textContent = `Next switch: ${remaining}s`;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          timer.textContent = '';
+        }
+      }, 1000);
+    }
+
+    function clearTimer() {
+      timer.textContent = '';
+      clearTimeout(autoTimeout);
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function startGameTimer(seconds) {
+      clearInterval(gameTimerInterval);
+      gameActive = true;
+      let remaining = seconds;
+      gameTimer.textContent = `Game Time: ${formatTime(remaining)}`;
+
+      gameTimerInterval = setInterval(() => {
+        remaining--;
+        gameTimer.textContent = `Game Time: ${formatTime(remaining)}`;
+        if (remaining <= 0) {
+          clearInterval(gameTimerInterval);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function endGame() {
+      gameActive = false;
+      timer.textContent = '';
+      gameTimer.textContent = 'Game Over';
+      status.textContent = 'Game Over';
+      status.className = 'game-over';
+      robot.src = robotFacing;
+      clearTimeout(autoTimeout);
+    }
+
+    // ✅ Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (!gameActive) return;
+
+      if (e.code === 'Space') {
+        if (status.textContent === 'Green Light') {
+          setRed();
+        } else {
+          setGreen();
+        }
+      }
+      if (e.code === 'Digit1') {
+        startGameTimer(60); // Press 1 for 1 min
+      }
+      if (e.code === 'Digit2') {
+        startGameTimer(120); // Press 2 for 2 mins
+      }
+      if (e.code === 'KeyA') {
+        toggleAuto(); // Press A for Auto mode
+      }
+      if (e.code === 'KeyF') {
+        toggleFullscreen(); // Press F for Fullscreen
+      }
+    });
+  </script>
+
+</body>
+</html>
