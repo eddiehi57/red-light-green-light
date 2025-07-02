@@ -76,6 +76,7 @@
     .stop { background-color: red; color: white; }
     .toggle-auto { background-color: orange; color: black; }
     .fullscreen { background-color: gray; color: white; }
+    .fullscreen.active { background-color: #111; color: #aaa; }
     .music { background-color: purple; color: white; }
     .extra { background-color: darkcyan; color: white; }
     .eliminate { background-color: crimson; color: white; }
@@ -110,7 +111,7 @@
     <button class="stop" onclick="setRed()">Red Light</button>
     <button class="eliminate" onclick="playEliminated()">Eliminated</button>
     <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto</button>
-    <button class="fullscreen" onclick="toggleFullscreen()">Fullscreen</button>
+    <button class="fullscreen" id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
     <button class="extra" onclick="playGameStart()">Game Start</button>
     <button class="extra" onclick="toggleMute()">Mute</button>
@@ -132,6 +133,7 @@
     const gameTimer = document.getElementById('gameTimer');
     const robot = document.getElementById('robot');
     const buttonPanel = document.getElementById('buttonPanel');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     const greenVoice = document.getElementById('greenVoice');
     const redVoice = document.getElementById('redVoice');
@@ -147,6 +149,8 @@
     let muted = false;
     let spacePressed = false;
     let hideButtonsTimer;
+    let fullscreenMode = false;
+    let hideOnFullscreen = false;
 
     const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
     const robotBack = "https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902";
@@ -220,10 +224,18 @@
     }
 
     function toggleFullscreen() {
-      if (!document.fullscreenElement) {
+      if (!fullscreenMode) {
         document.documentElement.requestFullscreen();
+        fullscreenMode = true;
+        fullscreenBtn.classList.add('active');
+        hideButtons();
+        hideOnFullscreen = true;
       } else {
         document.exitFullscreen();
+        fullscreenMode = false;
+        fullscreenBtn.classList.remove('active');
+        buttonPanel.style.opacity = '1';
+        hideOnFullscreen = false;
       }
     }
 
@@ -261,17 +273,30 @@
     }
 
     function showButtons() {
+      if (hideOnFullscreen) {
+        buttonPanel.style.opacity = '1';
+        hideOnFullscreen = false;
+        return;
+      }
       buttonPanel.style.opacity = '1';
       clearTimeout(hideButtonsTimer);
       hideButtonsTimer = setTimeout(hideButtons, 3000);
     }
 
-    document.addEventListener('mousemove', showButtons);
+    document.addEventListener('mousemove', () => {
+      if (!fullscreenMode) showButtons();
+    });
+
+    document.addEventListener('click', () => {
+      if (hideOnFullscreen) {
+        showButtons();
+      }
+    });
 
     document.addEventListener('keydown', (e) => {
       if (!gameActive) return;
 
-      showButtons();
+      if (!fullscreenMode) showButtons();
 
       if (e.code === 'Space' && !spacePressed) {
         spacePressed = true;
