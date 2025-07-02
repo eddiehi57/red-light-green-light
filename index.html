@@ -36,11 +36,6 @@
       text-shadow: 0 0 30px #ff0000;
     }
 
-    .game-over {
-      color: yellow;
-      text-shadow: 0 0 20px yellow;
-    }
-
     #robot {
       width: 350px;
       height: auto;
@@ -80,6 +75,7 @@
     .fullscreen.active { background-color: #111; color: #aaa; }
     .music { background-color: purple; color: white; }
     .extra { background-color: darkcyan; color: white; }
+    .timer-btn { background-color: teal; color: white; }
 
     #timer {
       font-size: 1.5rem;
@@ -113,15 +109,14 @@
     <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto</button>
     <button class="fullscreen" id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
-    <button class="extra" onclick="playGameStart()">Game Start</button>
     <button class="extra" onclick="toggleMute()">Mute</button>
-    <button class="extra" onclick="resetGame()">Reset</button>
+    <button class="timer-btn" onclick="startGameTimer(60)">1 Minute Timer</button>
+    <button class="timer-btn" onclick="startGameTimer(120)">2 Minute Timer</button>
   </div>
 
   <!-- 🔊 Sound Files -->
   <audio id="greenVoice" src="greenlight.mp3" preload="auto"></audio>
   <audio id="redVoice" src="redlight.mp3" preload="auto"></audio>
-  <audio id="gameStartSound" src="gamestart.mp3" preload="auto"></audio>
   <audio id="eliminatedSound" src="eliminated.mp3" preload="auto"></audio>
   <audio id="bgMusic" src="backgroundmusic.mp3" preload="auto" loop></audio>
 
@@ -135,9 +130,8 @@
 
     const greenVoice = document.getElementById('greenVoice');
     const redVoice = document.getElementById('redVoice');
-    const bgMusic = document.getElementById('bgMusic');
-    const gameStartSound = document.getElementById('gameStartSound');
     const eliminatedSound = document.getElementById('eliminatedSound');
+    const bgMusic = document.getElementById('bgMusic');
 
     let autoMode = false;
     let autoTimeout = null;
@@ -253,23 +247,33 @@
       }
     }
 
-    function playGameStart() {
-      if (!muted) gameStartSound.play();
-    }
-
     function toggleMute() {
       muted = !muted;
     }
 
-    function resetGame() {
+    function startGameTimer(duration) {
       clearInterval(gameTimerInterval);
-      clearTimeout(autoTimeout);
-      gameTimer.textContent = '';
-      timer.textContent = '';
-      status.textContent = 'Green Light';
-      status.className = 'green';
-      robot.src = robotBack;
+      let timeLeft = duration;
       gameActive = true;
+      gameTimer.textContent = formatTime(timeLeft);
+
+      gameTimerInterval = setInterval(() => {
+        timeLeft--;
+        gameTimer.textContent = formatTime(timeLeft);
+        if (timeLeft <= 0) {
+          clearInterval(gameTimerInterval);
+          gameTimer.textContent = '';
+          gameActive = false;
+          bgMusic.pause();
+          musicPlaying = false;
+        }
+      }, 1000);
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
     function hideButtons() {
