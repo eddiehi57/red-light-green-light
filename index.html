@@ -157,6 +157,7 @@
     let gameActive = true;
     let musicPlaying = false;
     let muted = false;
+    let spacePressed = false;
 
     const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
     const robotBack = "https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902";
@@ -277,7 +278,6 @@
       }
     }
 
-    // 🔥 Bottom Left Button Functions
     function playGameStart() {
       if (!muted) gameStartSound.play();
     }
@@ -301,17 +301,18 @@
       gameActive = true;
     }
 
-    // ✅ Keyboard controls
     document.addEventListener('keydown', (e) => {
       if (!gameActive) return;
 
-      if (e.code === 'Space') {
+      if (e.code === 'Space' && !spacePressed) {
+        spacePressed = true;
         if (status.textContent === 'Green Light') {
           setRed();
         } else {
           setGreen();
         }
       }
+
       if (e.code === 'Digit1') {
         startGameTimer(60);
       }
@@ -326,6 +327,12 @@
       }
       if (e.code === 'KeyM') {
         toggleMusic();
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        spacePressed = false;
       }
     });
   </script>
