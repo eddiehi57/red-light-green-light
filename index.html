@@ -82,15 +82,23 @@
       margin-bottom: 15px;
     }
 
-    #gameTimer {
+    #gameTimerLeft, #gameTimerRight {
       position: absolute;
-      right: 20px;
       top: 50%;
       transform: translateY(-50%);
       font-size: 5rem;
       color: #ff0000;
       text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
       z-index: 1000;
+      user-select: none;
+    }
+
+    #gameTimerLeft {
+      left: 20px;
+    }
+
+    #gameTimerRight {
+      right: 20px;
     }
   </style>
 </head>
@@ -100,7 +108,9 @@
 
   <div id="status" class="green">Green Light</div>
   <div id="timer"></div>
-  <div id="gameTimer"></div>
+
+  <div id="gameTimerLeft"></div>
+  <div id="gameTimerRight"></div>
 
   <div class="buttons" id="buttonPanel">
     <button class="start" onclick="setGreen()">Green Light</button>
@@ -123,7 +133,8 @@
   <script>
     const status = document.getElementById('status');
     const timer = document.getElementById('timer');
-    const gameTimer = document.getElementById('gameTimer');
+    const gameTimerLeft = document.getElementById('gameTimerLeft');
+    const gameTimerRight = document.getElementById('gameTimerRight');
     const robot = document.getElementById('robot');
     const buttonPanel = document.getElementById('buttonPanel');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -255,19 +266,24 @@
       clearInterval(gameTimerInterval);
       let timeLeft = duration;
       gameActive = true;
-      gameTimer.textContent = formatTime(timeLeft);
+      updateGameTimers(formatTime(timeLeft));
 
       gameTimerInterval = setInterval(() => {
         timeLeft--;
-        gameTimer.textContent = formatTime(timeLeft);
+        updateGameTimers(formatTime(timeLeft));
         if (timeLeft <= 0) {
           clearInterval(gameTimerInterval);
-          gameTimer.textContent = '';
+          updateGameTimers('');
           gameActive = false;
           bgMusic.pause();
           musicPlaying = false;
         }
       }, 1000);
+    }
+
+    function updateGameTimers(text) {
+      gameTimerLeft.textContent = text;
+      gameTimerRight.textContent = text;
     }
 
     function formatTime(seconds) {
@@ -334,4 +350,15 @@
       }
     });
 
-    document.
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        spacePressed = false;
+      }
+    });
+
+    window.onload = () => {
+      hideButtonsTimer = setTimeout(hideButtons, 3000);
+    };
+  </script>
+</body>
+</html>
