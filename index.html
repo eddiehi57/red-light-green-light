@@ -17,6 +17,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      position: relative;
     }
 
     #status {
@@ -50,16 +51,16 @@
 
     .buttons {
       display: flex;
-      gap: 15px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
     button {
-      padding: 15px 30px;
-      font-size: 1.2rem;
+      padding: 8px 15px;
+      font-size: 0.7rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
     }
@@ -94,9 +95,25 @@
       color: white;
     }
 
-    #timer, #gameTimer {
+    .music {
+      background-color: purple;
+      color: white;
+    }
+
+    #timer {
       font-size: 1.5rem;
       margin-bottom: 15px;
+    }
+
+    #gameTimer {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 5rem;
+      color: #ff0000;
+      text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+      z-index: 1000;
     }
   </style>
 </head>
@@ -111,17 +128,17 @@
   <div class="buttons">
     <button class="start" onclick="setGreen()">Green Light</button>
     <button class="stop" onclick="setRed()">Red Light</button>
-    <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto Mode</button>
+    <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto</button>
     <button class="fullscreen" onclick="toggleFullscreen()">Fullscreen</button>
     <button class="game-timer" onclick="startGameTimer(60)">1 Min Timer</button>
     <button class="game-timer" onclick="startGameTimer(120)">2 Min Timer</button>
+    <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
   </div>
 
   <!-- Sounds -->
-  <audio id="greenSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6133e1c19c.mp3?filename=game-notification-132651.mp3"></audio>
-  <audio id="redSound" src="https://cdn.pixabay.com/download/audio/2022/03/16/audio_5e356937f4.mp3?filename=gunshot-132706.mp3"></audio>
-  <audio id="dollSound" src="https://cdn.pixabay.com/download/audio/2022/03/16/audio_c872ba1b86.mp3?filename=creepy-voice-saying-red-light-green-light-132685.mp3"></audio>
-  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/17/audio_05d2cc6056.mp3?filename=horror-background-132757.mp3" loop></audio>
+  <audio id="greenVoice" src="https://upload.wikimedia.org/wikipedia/commons/7/76/Squid_Game_Green_Light.ogg"></audio>
+  <audio id="redVoice" src="https://upload.wikimedia.org/wikipedia/commons/8/80/Squid_Game_Red_Light.ogg"></audio>
+  <audio id="bgMusic" src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Squid_Game_Theme.ogg" loop></audio>
 
   <script>
     const status = document.getElementById('status');
@@ -129,30 +146,25 @@
     const gameTimer = document.getElementById('gameTimer');
     const robot = document.getElementById('robot');
 
-    const greenSound = document.getElementById('greenSound');
-    const redSound = document.getElementById('redSound');
-    const dollSound = document.getElementById('dollSound');
+    const greenVoice = document.getElementById('greenVoice');
+    const redVoice = document.getElementById('redVoice');
     const bgMusic = document.getElementById('bgMusic');
 
     let autoMode = false;
     let autoTimeout = null;
     let gameTimerInterval = null;
     let gameActive = true;
+    let musicPlaying = false;
 
     const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
     const robotBack = "https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902";
-
-    window.onload = () => {
-      bgMusic.volume = 0.2;
-      bgMusic.play().catch(()=>{});
-    };
 
     function setGreen() {
       if (!gameActive) return;
       status.textContent = 'Green Light';
       status.className = 'green';
       robot.src = robotBack;
-      greenSound.play();
+      greenVoice.play();
       clearTimer();
     }
 
@@ -161,8 +173,7 @@
       status.textContent = 'Red Light';
       status.className = 'red';
       robot.src = robotFacing;
-      dollSound.play();
-      redSound.play();
+      redVoice.play();
       clearTimer();
     }
 
@@ -224,11 +235,11 @@
       clearInterval(gameTimerInterval);
       gameActive = true;
       let remaining = seconds;
-      gameTimer.textContent = `Game Time: ${formatTime(remaining)}`;
+      gameTimer.textContent = `${formatTime(remaining)}`;
 
       gameTimerInterval = setInterval(() => {
         remaining--;
-        gameTimer.textContent = `Game Time: ${formatTime(remaining)}`;
+        gameTimer.textContent = `${formatTime(remaining)}`;
         if (remaining <= 0) {
           clearInterval(gameTimerInterval);
           endGame();
@@ -252,6 +263,16 @@
       clearTimeout(autoTimeout);
     }
 
+    function toggleMusic() {
+      if (musicPlaying) {
+        bgMusic.pause();
+        musicPlaying = false;
+      } else {
+        bgMusic.play();
+        musicPlaying = true;
+      }
+    }
+
     // ✅ Keyboard controls
     document.addEventListener('keydown', (e) => {
       if (!gameActive) return;
@@ -264,19 +285,26 @@
         }
       }
       if (e.code === 'Digit1') {
-        startGameTimer(60); // Press 1 for 1 min
+        startGameTimer(60);
       }
       if (e.code === 'Digit2') {
-        startGameTimer(120); // Press 2 for 2 mins
+        startGameTimer(120);
       }
       if (e.code === 'KeyA') {
-        toggleAuto(); // Press A for Auto mode
+        toggleAuto();
       }
       if (e.code === 'KeyF') {
-        toggleFullscreen(); // Press F for Fullscreen
+        toggleFullscreen();
+      }
+      if (e.code === 'KeyM') {
+        toggleMusic();
       }
     });
   </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
