@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Red Light Green Light - Squid Game</title>
   <style>
     body {
@@ -74,12 +74,12 @@
 
     .start { background-color: green; color: white; }
     .stop { background-color: red; color: white; }
+    .eliminate { background-color: crimson; color: white; }
     .toggle-auto { background-color: orange; color: black; }
     .fullscreen { background-color: gray; color: white; }
     .fullscreen.active { background-color: #111; color: #aaa; }
     .music { background-color: purple; color: white; }
     .extra { background-color: darkcyan; color: white; }
-    .eliminate { background-color: crimson; color: white; }
 
     #timer {
       font-size: 1.5rem;
@@ -118,13 +118,11 @@
     <button class="extra" onclick="resetGame()">Reset</button>
   </div>
 
-  <!-- 🔊 Local Sound Files -->
+  <!-- 🔊 Sound Files -->
   <audio id="greenVoice" src="greenlight.mp3" preload="auto"></audio>
   <audio id="redVoice" src="redlight.mp3" preload="auto"></audio>
   <audio id="gameStartSound" src="gamestart.mp3" preload="auto"></audio>
   <audio id="eliminatedSound" src="eliminated.mp3" preload="auto"></audio>
-
-  <!-- 🎵 Optional Background Music -->
   <audio id="bgMusic" src="backgroundmusic.mp3" preload="auto" loop></audio>
 
   <script>
@@ -160,7 +158,11 @@
       status.textContent = 'Green Light';
       status.className = 'green';
       robot.src = robotBack;
-      if (!muted) greenVoice.play();
+      if (!muted) {
+        greenVoice.play();
+        bgMusic.play();
+        musicPlaying = true;
+      }
       clearTimer();
     }
 
@@ -170,6 +172,8 @@
       status.className = 'red';
       robot.src = robotFacing;
       if (!muted) redVoice.play();
+      bgMusic.pause();
+      musicPlaying = false;
       clearTimer();
     }
 
@@ -328,11 +332,9 @@
       }
     });
 
-    // Start the button hide timer when the page loads
     window.onload = () => {
       hideButtonsTimer = setTimeout(hideButtons, 3000);
     };
   </script>
-
 </body>
 </html>
