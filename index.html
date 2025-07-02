@@ -72,9 +72,12 @@
     .start { background-color: green; color: white; }
     .stop { background-color: red; color: white; }
     .eliminate { background-color: crimson; color: white; }
-    .toggle-auto { background-color: orange; color: black; }
+    /* Removed toggle-auto */
     .fullscreen { background-color: gray; color: white; }
-    .fullscreen.active { background-color: #111; color: #aaa; }
+    .fullscreen.active {
+      background-color: #222; /* Very dark grey */
+      color: #555; /* Dim text */
+    }
     .music { background-color: purple; color: white; }
     .timer-btn { background-color: teal; color: white; }
 
@@ -117,7 +120,7 @@
     <button class="start" onclick="setGreen()">Green Light</button>
     <button class="stop" onclick="setRed()">Red Light</button>
     <button class="eliminate" onclick="playEliminated()">Eliminated</button>
-    <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto</button>
+    <!-- Toggle Auto removed -->
     <button class="fullscreen" id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
     <button class="timer-btn" onclick="startGameTimer(60)">1 Minute Timer</button>
@@ -144,7 +147,7 @@
     const eliminatedSound = document.getElementById('eliminatedSound');
     const bgMusic = document.getElementById('bgMusic');
 
-    let autoMode = false;
+    let autoMode = false; // unused now, but left for reference
     let autoTimeout = null;
     let gameTimerInterval = null;
     let gameActive = true;
@@ -186,34 +189,6 @@
       if (!muted) eliminatedSound.play();
     }
 
-    function toggleAuto() {
-      if (!gameActive) return;
-      autoMode = !autoMode;
-      if (autoMode) {
-        startAutoSwitch();
-      } else {
-        clearTimeout(autoTimeout);
-        timer.textContent = '';
-      }
-    }
-
-    function startAutoSwitch() {
-      const current = status.textContent;
-      const next = current === 'Green Light' ? 'Red Light' : 'Green Light';
-      if (next === 'Red Light') {
-        setRed();
-      } else {
-        setGreen();
-      }
-
-      let duration = Math.floor(Math.random() * 5) + 3;
-      startTimer(duration);
-
-      autoTimeout = setTimeout(() => {
-        startAutoSwitch();
-      }, duration * 1000);
-    }
-
     function startTimer(seconds) {
       let remaining = seconds;
       timer.textContent = `Next switch: ${remaining}s`;
@@ -244,6 +219,11 @@
         fullscreenMode = false;
         fullscreenBtn.classList.remove('active');
         buttonPanel.style.opacity = '1';
+        // Show all buttons on exit fullscreen
+        for (const btn of buttonPanel.children) {
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        }
         hideOnFullscreen = false;
       }
     }
@@ -349,9 +329,6 @@
         playEliminated();
       }
 
-      if (e.code === 'KeyA') {
-        toggleAuto();
-      }
       if (e.code === 'KeyF') {
         toggleFullscreen();
       }
