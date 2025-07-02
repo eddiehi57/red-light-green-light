@@ -54,6 +54,8 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
+      opacity: 1;
+      transition: opacity 0.5s;
     }
 
     button {
@@ -74,9 +76,9 @@
     .stop { background-color: red; color: white; }
     .toggle-auto { background-color: orange; color: black; }
     .fullscreen { background-color: gray; color: white; }
-    .game-timer { background-color: blue; color: white; }
     .music { background-color: purple; color: white; }
     .extra { background-color: darkcyan; color: white; }
+    .eliminate { background-color: crimson; color: white; }
 
     #timer {
       font-size: 1.5rem;
@@ -93,15 +95,6 @@
       text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
       z-index: 1000;
     }
-
-    .bottom-left {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
   </style>
 </head>
 <body>
@@ -112,22 +105,16 @@
   <div id="timer"></div>
   <div id="gameTimer"></div>
 
-  <div class="buttons">
+  <div class="buttons" id="buttonPanel">
     <button class="start" onclick="setGreen()">Green Light</button>
     <button class="stop" onclick="setRed()">Red Light</button>
+    <button class="eliminate" onclick="playEliminated()">Eliminated</button>
     <button class="toggle-auto" onclick="toggleAuto()">Toggle Auto</button>
     <button class="fullscreen" onclick="toggleFullscreen()">Fullscreen</button>
-    <button class="game-timer" onclick="startGameTimer(60)">1 Min Timer</button>
-    <button class="game-timer" onclick="startGameTimer(120)">2 Min Timer</button>
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
-  </div>
-
-  <!-- 🔥 Bottom Left Buttons -->
-  <div class="bottom-left">
     <button class="extra" onclick="playGameStart()">Game Start</button>
-    <button class="extra" onclick="playEliminated()">Eliminated</button>
     <button class="extra" onclick="toggleMute()">Mute</button>
-    <button class="extra" onclick="resetGame()">Reset Game</button>
+    <button class="extra" onclick="resetGame()">Reset</button>
   </div>
 
   <!-- 🔊 Local Sound Files -->
@@ -144,6 +131,7 @@
     const timer = document.getElementById('timer');
     const gameTimer = document.getElementById('gameTimer');
     const robot = document.getElementById('robot');
+    const buttonPanel = document.getElementById('buttonPanel');
 
     const greenVoice = document.getElementById('greenVoice');
     const redVoice = document.getElementById('redVoice');
@@ -158,6 +146,7 @@
     let musicPlaying = false;
     let muted = false;
     let spacePressed = false;
+    let hideButtonsTimer;
 
     const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
     const robotBack = "https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902";
@@ -167,9 +156,7 @@
       status.textContent = 'Green Light';
       status.className = 'green';
       robot.src = robotBack;
-      if (!muted) {
-        greenVoice.play();
-      }
+      if (!muted) greenVoice.play();
       clearTimer();
     }
 
@@ -180,6 +167,10 @@
       robot.src = robotFacing;
       if (!muted) redVoice.play();
       clearTimer();
+    }
+
+    function playEliminated() {
+      if (!muted) eliminatedSound.play();
     }
 
     function toggleAuto() {
@@ -236,38 +227,6 @@
       }
     }
 
-    function startGameTimer(seconds) {
-      clearInterval(gameTimerInterval);
-      gameActive = true;
-      let remaining = seconds;
-      gameTimer.textContent = `${formatTime(remaining)}`;
-
-      gameTimerInterval = setInterval(() => {
-        remaining--;
-        gameTimer.textContent = `${formatTime(remaining)}`;
-        if (remaining <= 0) {
-          clearInterval(gameTimerInterval);
-          endGame();
-        }
-      }, 1000);
-    }
-
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return `${m}:${s.toString().padStart(2, '0')}`;
-    }
-
-    function endGame() {
-      gameActive = false;
-      timer.textContent = '';
-      gameTimer.textContent = 'Game Over';
-      status.textContent = 'Game Over';
-      status.className = 'game-over';
-      robot.src = robotFacing;
-      clearTimeout(autoTimeout);
-    }
-
     function toggleMusic() {
       if (musicPlaying) {
         bgMusic.pause();
@@ -280,10 +239,6 @@
 
     function playGameStart() {
       if (!muted) gameStartSound.play();
-    }
-
-    function playEliminated() {
-      if (!muted) eliminatedSound.play();
     }
 
     function toggleMute() {
@@ -301,8 +256,22 @@
       gameActive = true;
     }
 
+    function hideButtons() {
+      buttonPanel.style.opacity = '0';
+    }
+
+    function showButtons() {
+      buttonPanel.style.opacity = '1';
+      clearTimeout(hideButtonsTimer);
+      hideButtonsTimer = setTimeout(hideButtons, 3000);
+    }
+
+    document.addEventListener('mousemove', showButtons);
+
     document.addEventListener('keydown', (e) => {
       if (!gameActive) return;
+
+      showButtons();
 
       if (e.code === 'Space' && !spacePressed) {
         spacePressed = true;
@@ -313,12 +282,10 @@
         }
       }
 
-      if (e.code === 'Digit1') {
-        startGameTimer(60);
+      if (e.shiftKey) {
+        playEliminated();
       }
-      if (e.code === 'Digit2') {
-        startGameTimer(120);
-      }
+
       if (e.code === 'KeyA') {
         toggleAuto();
       }
@@ -335,6 +302,11 @@
         spacePressed = false;
       }
     });
+
+    // Start the button hide timer when the page loads
+    window.onload = () => {
+      hideButtonsTimer = setTimeout(hideButtons, 3000);
+    };
   </script>
 
 </body>
