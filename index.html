@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Red Light Green Light - Squid Game</title>
   <style>
     html, body {
@@ -26,10 +26,10 @@
     }
     #status {
       position: absolute;
-      top: 5%;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      font-size: 7rem;
+      transform: translate(-50%, -50%);
+      font-size: 4rem;
       font-weight: bold;
       pointer-events: none;
       user-select: none;
@@ -70,9 +70,10 @@
       flex-wrap: wrap;
       justify-content: center;
       z-index: 100;
-      opacity: 1 !important;
+      opacity: 1;
       transition: opacity 0.5s;
     }
+    .hidden { display: none !important; }
     button {
       padding: 8px 15px;
       font-size: 0.7rem;
@@ -89,13 +90,17 @@
     .start { background-color: green; color: white; }
     .stop { background-color: red; color: white; }
     .eliminate { background-color: crimson; color: white; }
-    .fullscreen { background-color: gray; color: white; }
-    .fullscreen.active {
+    .fullscreen {
       background-color: #222;
-      color: #555;
+      color: black;
+    }
+    .fullscreen.active {
+      background-color: #111;
+      color: black;
     }
     .music { background-color: purple; color: white; }
     .timer-btn { background-color: teal; color: white; }
+    .reset { background-color: orange; color: white; }
     #gameTimerLeft, #gameTimerRight {
       position: absolute;
       top: 50%;
@@ -136,6 +141,7 @@
     <button class="music" onclick="handleInteraction(toggleMusic)">Play/Stop Music</button>
     <button class="timer-btn" onclick="handleInteraction(() => { setGreen(); startGameTimer(60); })">1 Minute Timer</button>
     <button class="timer-btn" onclick="handleInteraction(() => { setGreen(); startGameTimer(120); })">2 Minute Timer</button>
+    <button class="reset" onclick="resetGame()">RESET</button>
   </div>
 
   <audio id="greenVoice" src="greenlight.mp3" preload="auto"></audio>
@@ -231,14 +237,16 @@
         document.documentElement.requestFullscreen();
         fullscreenMode = true;
         fullscreenBtn.classList.add('active');
-        buttonPanel.style.opacity = '0';
-        buttonPanel.style.pointerEvents = 'none';
+        buttonPanel.querySelectorAll('button').forEach(btn => {
+          if (!btn.classList.contains('fullscreen')) btn.classList.add('hidden');
+        });
       } else {
         document.exitFullscreen();
         fullscreenMode = false;
         fullscreenBtn.classList.remove('active');
-        buttonPanel.style.opacity = '1';
-        buttonPanel.style.pointerEvents = 'auto';
+        buttonPanel.querySelectorAll('button').forEach(btn => {
+          btn.classList.remove('hidden');
+        });
       }
     }
 
@@ -250,6 +258,10 @@
         bgMusic.play();
         musicPlaying = true;
       }
+    }
+
+    function resetGame() {
+      location.reload();
     }
 
     function startGameTimer(duration) {
