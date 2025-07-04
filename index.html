@@ -29,11 +29,11 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 4rem;
+      font-size: 4.6rem;
       font-weight: bold;
       pointer-events: none;
       user-select: none;
-      text-shadow: 0 0 30px #ff0000, 0 0 50px #ff0000;
+      text-shadow: 0 0 30px #ff0000, 0 0 50px #ff0000, 2px 2px 2px white;
       color: #ff0000;
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -41,7 +41,7 @@
     }
     #status.green {
       color: #00ff00;
-      text-shadow: 0 0 30px #00ff00, 0 0 50px #00ff00;
+      text-shadow: 0 0 30px #00ff00, 0 0 50px #00ff00, 2px 2px 2px white;
     }
     #robot {
       max-height: 100vh;
@@ -91,11 +91,11 @@
     .stop { background-color: red; color: white; }
     .eliminate { background-color: crimson; color: white; }
     .fullscreen {
-      background-color: #222;
+      background-color: #444;
       color: black;
     }
     .fullscreen.active {
-      background-color: #111;
+      background-color: #222;
       color: black;
     }
     .music { background-color: purple; color: white; }
@@ -144,6 +144,7 @@
     <button class="reset" onclick="resetGame()">RESET</button>
   </div>
 
+  <!-- Sound files -->
   <audio id="greenVoice" src="greenlight.mp3" preload="auto"></audio>
   <audio id="redVoice" src="redlight.mp3" preload="auto"></audio>
   <audio id="eliminatedSound" src="eliminated.mp3" preload="auto"></audio>
@@ -244,9 +245,7 @@
         document.exitFullscreen();
         fullscreenMode = false;
         fullscreenBtn.classList.remove('active');
-        buttonPanel.querySelectorAll('button').forEach(btn => {
-          btn.classList.remove('hidden');
-        });
+        buttonPanel.querySelectorAll('button').forEach(btn => btn.classList.remove('hidden'));
       }
     }
 
@@ -265,6 +264,7 @@
     }
 
     function startGameTimer(duration) {
+      if (!fullscreenMode) toggleFullscreen();
       clearInterval(gameTimerInterval);
       let timeLeft = duration;
       gameActive = true;
