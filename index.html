@@ -27,9 +27,7 @@
     }
 
     #status {
-      font-size: 6rem;
-      margin: 10px 0;
-      transition: color 0.5s;
+      display: none;
     }
 
     .green {
@@ -136,7 +134,7 @@
 <body>
   <div id="container">
     <img id="robot" src="openingimage.jpg" alt="Opening" onclick="openToRed()" />
-    <div id="status" class="green">Green Light</div>
+    <div id="status"></div>
   </div>
   <div id="gameTimerLeft"></div>
   <div id="gameTimerRight"></div>
@@ -175,9 +173,7 @@
     let muted = false;
     let spacePressed = false;
     let gameTimerInterval = null;
-    let hideButtonsTimer;
     let fullscreenMode = false;
-    let hideOnFullscreen = false;
     let hasInteracted = false;
 
     const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
@@ -200,8 +196,6 @@
 
     function setGreen() {
       if (!gameActive) return;
-      status.textContent = 'Green Light';
-      status.className = 'green';
       clearTimeout(robot._eyeSwapTimer);
       robot.src = robotBack;
       robot.classList.remove('gif-pop');
@@ -214,8 +208,6 @@
 
     function setRed() {
       if (!gameActive) return;
-      status.textContent = 'Red Light';
-      status.className = 'red';
       robot.src = robotFacing;
       robot.classList.remove('gif-pop');
       clearTimeout(robot._eyeSwapTimer);
@@ -238,13 +230,11 @@
         fullscreenMode = true;
         fullscreenBtn.classList.add('active');
         hideButtons();
-        hideOnFullscreen = true;
       } else {
         document.exitFullscreen();
         fullscreenMode = false;
         fullscreenBtn.classList.remove('active');
         showButtons();
-        hideOnFullscreen = false;
       }
     }
 
@@ -302,17 +292,7 @@
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
       }
-      clearTimeout(hideButtonsTimer);
-      hideButtonsTimer = setTimeout(hideButtons, 3000);
     }
-
-    document.addEventListener('mousemove', () => {
-      if (!fullscreenMode) showButtons();
-    });
-
-    document.addEventListener('click', () => {
-      if (hideOnFullscreen) showButtons();
-    });
 
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space') e.preventDefault();
@@ -324,7 +304,7 @@
           setRed();
           return;
         }
-        if (status.textContent === 'Green Light') {
+        if (robot.src.includes('back')) {
           setRed();
         } else {
           setGreen();
@@ -336,10 +316,6 @@
     document.addEventListener('keyup', (e) => {
       if (e.code === 'Space') spacePressed = false;
     });
-
-    window.onload = () => {
-      hideButtonsTimer = setTimeout(hideButtons, 3000);
-    };
   </script>
 </body>
 </html>
