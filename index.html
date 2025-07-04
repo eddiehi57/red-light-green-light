@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Red Light Green Light - Squid Game</title>
   <style>
     body {
@@ -72,19 +72,13 @@
     .start { background-color: green; color: white; }
     .stop { background-color: red; color: white; }
     .eliminate { background-color: crimson; color: white; }
-    /* Removed toggle-auto */
     .fullscreen { background-color: gray; color: white; }
     .fullscreen.active {
-      background-color: #222; /* Very dark grey */
-      color: #555; /* Dim text */
+      background-color: #222;
+      color: #555;
     }
     .music { background-color: purple; color: white; }
     .timer-btn { background-color: teal; color: white; }
-
-    #timer {
-      font-size: 1.5rem;
-      margin-bottom: 15px;
-    }
 
     #gameTimerLeft, #gameTimerRight {
       position: absolute;
@@ -107,27 +101,20 @@
   </style>
 </head>
 <body>
-
-  <img id="robot" src="https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902" alt="Robot">
-
+  <img id="robot" src="https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902" alt="Robot" />
   <div id="status" class="green">Green Light</div>
-  <div id="timer"></div>
-
   <div id="gameTimerLeft"></div>
   <div id="gameTimerRight"></div>
-
   <div class="buttons" id="buttonPanel">
     <button class="start" onclick="setGreen()">Green Light</button>
     <button class="stop" onclick="setRed()">Red Light</button>
     <button class="eliminate" onclick="playEliminated()">Eliminated</button>
-    <!-- Toggle Auto removed -->
     <button class="fullscreen" id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
     <button class="music" onclick="toggleMusic()">Play/Stop Music</button>
     <button class="timer-btn" onclick="startGameTimer(60)">1 Minute Timer</button>
     <button class="timer-btn" onclick="startGameTimer(120)">2 Minute Timer</button>
   </div>
 
-  <!-- 🔊 Sound Files -->
   <audio id="greenVoice" src="greenlight.mp3" preload="auto"></audio>
   <audio id="redVoice" src="redlight.mp3" preload="auto"></audio>
   <audio id="eliminatedSound" src="eliminated.mp3" preload="auto"></audio>
@@ -135,43 +122,41 @@
 
   <script>
     const status = document.getElementById('status');
-    const timer = document.getElementById('timer');
+    const robot = document.getElementById('robot');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const buttonPanel = document.getElementById('buttonPanel');
     const gameTimerLeft = document.getElementById('gameTimerLeft');
     const gameTimerRight = document.getElementById('gameTimerRight');
-    const robot = document.getElementById('robot');
-    const buttonPanel = document.getElementById('buttonPanel');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     const greenVoice = document.getElementById('greenVoice');
     const redVoice = document.getElementById('redVoice');
     const eliminatedSound = document.getElementById('eliminatedSound');
     const bgMusic = document.getElementById('bgMusic');
 
-    let autoMode = false; // unused now, but left for reference
-    let autoTimeout = null;
-    let gameTimerInterval = null;
     let gameActive = true;
     let musicPlaying = false;
     let muted = false;
     let spacePressed = false;
+    let gameTimerInterval = null;
     let hideButtonsTimer;
     let fullscreenMode = false;
     let hideOnFullscreen = false;
 
     const robotFacing = "https://cdna.artstation.com/p/assets/images/images/042/207/826/large/wangu-lee-front.jpg?1633884906";
     const robotBack = "https://cdnb.artstation.com/p/assets/images/images/042/207/825/large/wangu-lee-back.jpg?1633884902";
+    const robotEyesGif = "roboteyes.gif";
 
     function setGreen() {
       if (!gameActive) return;
       status.textContent = 'Green Light';
       status.className = 'green';
+      clearTimeout(robot._eyeSwapTimer);
       robot.src = robotBack;
       if (!muted) {
         greenVoice.play();
         bgMusic.play();
         musicPlaying = true;
       }
-      clearTimer();
     }
 
     function setRed() {
@@ -179,32 +164,17 @@
       status.textContent = 'Red Light';
       status.className = 'red';
       robot.src = robotFacing;
+      clearTimeout(robot._eyeSwapTimer);
+      robot._eyeSwapTimer = setTimeout(() => {
+        robot.src = robotEyesGif;
+      }, 2000);
       if (!muted) redVoice.play();
       bgMusic.pause();
       musicPlaying = false;
-      clearTimer();
     }
 
     function playEliminated() {
       if (!muted) eliminatedSound.play();
-    }
-
-    function startTimer(seconds) {
-      let remaining = seconds;
-      timer.textContent = `Next switch: ${remaining}s`;
-      const interval = setInterval(() => {
-        remaining--;
-        timer.textContent = `Next switch: ${remaining}s`;
-        if (remaining <= 0) {
-          clearInterval(interval);
-          timer.textContent = '';
-        }
-      }, 1000);
-    }
-
-    function clearTimer() {
-      timer.textContent = '';
-      clearTimeout(autoTimeout);
     }
 
     function toggleFullscreen() {
@@ -218,12 +188,7 @@
         document.exitFullscreen();
         fullscreenMode = false;
         fullscreenBtn.classList.remove('active');
-        buttonPanel.style.opacity = '1';
-        // Show all buttons on exit fullscreen
-        for (const btn of buttonPanel.children) {
-          btn.style.opacity = '1';
-          btn.style.pointerEvents = 'auto';
-        }
+        showButtons();
         hideOnFullscreen = false;
       }
     }
@@ -269,7 +234,6 @@
     }
 
     function hideButtons() {
-      // Hide all except fullscreen button
       for (const btn of buttonPanel.children) {
         if (btn.id !== 'fullscreenBtn') {
           btn.style.opacity = '0';
@@ -279,16 +243,6 @@
     }
 
     function showButtons() {
-      if (hideOnFullscreen) {
-        // Show all buttons
-        for (const btn of buttonPanel.children) {
-          btn.style.opacity = '1';
-          btn.style.pointerEvents = 'auto';
-        }
-        hideOnFullscreen = false;
-        return;
-      }
-      // Show all except fullscreen button stays fully visible anyway
       for (const btn of buttonPanel.children) {
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
@@ -302,20 +256,12 @@
     });
 
     document.addEventListener('click', () => {
-      if (hideOnFullscreen) {
-        showButtons();
-      }
+      if (hideOnFullscreen) showButtons();
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-      }
-
+      if (e.code === 'Space') e.preventDefault();
       if (!gameActive) return;
-
-      if (!fullscreenMode) showButtons();
-
       if (e.code === 'Space' && !spacePressed) {
         spacePressed = true;
         if (status.textContent === 'Green Light') {
@@ -324,23 +270,11 @@
           setGreen();
         }
       }
-
-      if (e.shiftKey) {
-        playEliminated();
-      }
-
-      if (e.code === 'KeyF') {
-        toggleFullscreen();
-      }
-      if (e.code === 'KeyM') {
-        toggleMusic();
-      }
+      if (e.shiftKey) playEliminated();
     });
 
     document.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') {
-        spacePressed = false;
-      }
+      if (e.code === 'Space') spacePressed = false;
     });
 
     window.onload = () => {
