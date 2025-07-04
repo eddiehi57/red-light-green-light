@@ -44,6 +44,15 @@
       border-radius: 20px;
     }
 
+    .gif-pop {
+      animation: pop 0.5s ease forwards;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.1); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
     .buttons {
       display: flex;
       gap: 10px;
@@ -98,6 +107,21 @@
     #gameTimerRight {
       right: 20px;
     }
+
+    .sldsquidlogo {
+      position: absolute;
+      width: 100px;
+      height: auto;
+      bottom: 10px;
+    }
+
+    #logoLeft {
+      left: 10px;
+    }
+
+    #logoRight {
+      right: 10px;
+    }
   </style>
 </head>
 <body>
@@ -105,6 +129,8 @@
   <div id="status" class="green">Green Light</div>
   <div id="gameTimerLeft"></div>
   <div id="gameTimerRight"></div>
+  <img src="sldsquidlogo.jpg" class="sldsquidlogo" id="logoLeft" />
+  <img src="sldsquidlogo.jpg" class="sldsquidlogo" id="logoRight" />
   <div class="buttons" id="buttonPanel">
     <button class="start" onclick="setGreen()">Green Light</button>
     <button class="stop" onclick="setRed()">Red Light</button>
@@ -152,6 +178,7 @@
       status.className = 'green';
       clearTimeout(robot._eyeSwapTimer);
       robot.src = robotBack;
+      robot.classList.remove('gif-pop');
       if (!muted) {
         greenVoice.play();
         bgMusic.play();
@@ -164,9 +191,12 @@
       status.textContent = 'Red Light';
       status.className = 'red';
       robot.src = robotFacing;
+      robot.classList.remove('gif-pop');
       clearTimeout(robot._eyeSwapTimer);
       robot._eyeSwapTimer = setTimeout(() => {
         robot.src = robotEyesGif;
+        robot.style.width = '700px';
+        robot.classList.add('gif-pop');
       }, 2000);
       if (!muted) redVoice.play();
       bgMusic.pause();
