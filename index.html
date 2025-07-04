@@ -50,6 +50,7 @@
       transition: transform 1s ease;
       margin-bottom: 20px;
       border-radius: 20px;
+      cursor: pointer;
     }
 
     .gif-pop {
@@ -134,7 +135,7 @@
 </head>
 <body>
   <div id="container">
-    <img id="robot" src="openingimage.jpg" alt="Opening" />
+    <img id="robot" src="openingimage.jpg" alt="Opening" onclick="openToRed()" />
     <div id="status" class="green">Green Light</div>
   </div>
   <div id="gameTimerLeft"></div>
@@ -147,8 +148,8 @@
     <button class="eliminate" onclick="handleInteraction(playEliminated)">Eliminated</button>
     <button class="fullscreen" id="fullscreenBtn" onclick="handleInteraction(toggleFullscreen)">Fullscreen</button>
     <button class="music" onclick="handleInteraction(toggleMusic)">Play/Stop Music</button>
-    <button class="timer-btn" onclick="handleInteraction(() => startGameTimer(60))">1 Minute Timer</button>
-    <button class="timer-btn" onclick="handleInteraction(() => startGameTimer(120))">2 Minute Timer</button>
+    <button class="timer-btn" onclick="handleInteraction(() => { setGreen(); startGameTimer(60); })">1 Minute Timer</button>
+    <button class="timer-btn" onclick="handleInteraction(() => { setGreen(); startGameTimer(120); })">2 Minute Timer</button>
   </div>
 
   <audio id="greenVoice" src="greenlight.mp3" preload="auto"></audio>
@@ -185,10 +186,16 @@
 
     function handleInteraction(callback) {
       if (!hasInteracted) {
-        robot.src = robotBack;
         hasInteracted = true;
       }
       callback();
+    }
+
+    function openToRed() {
+      if (!hasInteracted) {
+        hasInteracted = true;
+        setRed();
+      }
     }
 
     function setGreen() {
@@ -313,8 +320,9 @@
       if (e.code === 'Space' && !spacePressed) {
         spacePressed = true;
         if (!hasInteracted) {
-          robot.src = robotBack;
           hasInteracted = true;
+          setRed();
+          return;
         }
         if (status.textContent === 'Green Light') {
           setRed();
