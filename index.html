@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Red Light Green Light - Squid Game</title>
   <style>
     html, body {
@@ -12,68 +12,67 @@
       background-color: black;
       color: white;
       font-family: Arial, sans-serif;
-      text-align: center;
       overflow: hidden;
+      text-align: center;
     }
-
     #container {
       height: 100%;
       width: 100%;
+      position: relative;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      position: relative;
+      flex-direction: column;
     }
-
     #status {
-      display: none;
-    }
-
-    .green {
-      color: #00ff00;
-      text-shadow: 0 0 30px #00ff00;
-    }
-
-    .red {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 7rem;
+      font-weight: bold;
+      pointer-events: none;
+      user-select: none;
+      text-shadow: 0 0 30px #ff0000, 0 0 50px #ff0000;
       color: #ff0000;
-      text-shadow: 0 0 30px #ff0000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
     }
-
+    #status.green {
+      color: #00ff00;
+      text-shadow: 0 0 30px #00ff00, 0 0 50px #00ff00;
+    }
     #robot {
       max-height: 100vh;
       height: 100vh;
       width: auto;
+      cursor: pointer;
+      border-radius: 20px;
+      object-fit: contain;
       transition: transform 1s ease;
       margin-bottom: 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      object-fit: contain;
     }
-
     .gif-pop {
       animation: pop 0.5s ease forwards;
     }
-
     @keyframes pop {
       0% { transform: scale(0.1); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
-
     .buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      opacity: 1 !important;
-      transition: opacity 0.5s;
       position: fixed;
       bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
       z-index: 100;
+      opacity: 1 !important;
+      transition: opacity 0.5s;
     }
-
     button {
       padding: 8px 15px;
       font-size: 0.7rem;
@@ -81,13 +80,12 @@
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
+      user-select: none;
     }
-
     button:hover {
       filter: brightness(1.2);
       transform: scale(1.05);
     }
-
     .start { background-color: green; color: white; }
     .stop { background-color: red; color: white; }
     .eliminate { background-color: crimson; color: white; }
@@ -98,7 +96,6 @@
     }
     .music { background-color: purple; color: white; }
     .timer-btn { background-color: teal; color: white; }
-
     #gameTimerLeft, #gameTimerRight {
       position: absolute;
       top: 50%;
@@ -109,29 +106,17 @@
       z-index: 1000;
       user-select: none;
     }
-
-    #gameTimerLeft {
-      left: 20px;
-    }
-
-    #gameTimerRight {
-      right: 20px;
-    }
-
+    #gameTimerLeft { left: 20px; }
+    #gameTimerRight { right: 20px; }
     .sldsquidlogo {
       position: absolute;
       width: 100px;
       height: auto;
       bottom: 10px;
+      z-index: 100;
     }
-
-    #logoLeft {
-      left: 10px;
-    }
-
-    #logoRight {
-      right: 10px;
-    }
+    #logoLeft { left: 10px; }
+    #logoRight { right: 10px; }
   </style>
 </head>
 <body>
@@ -197,6 +182,17 @@
       }
     }
 
+    function showStatus(text, colorClass) {
+      status.textContent = text;
+      status.className = '';
+      status.classList.add(colorClass);
+      status.style.opacity = '1';
+      clearTimeout(status._hideTimeout);
+      status._hideTimeout = setTimeout(() => {
+        status.style.opacity = '0';
+      }, 2500);
+    }
+
     function setGreen() {
       if (!gameActive) return;
       clearTimeout(robot._eyeSwapTimer);
@@ -207,6 +203,7 @@
         bgMusic.play();
         musicPlaying = true;
       }
+      showStatus('GREEN LIGHT', 'green');
     }
 
     function setRed() {
@@ -221,10 +218,12 @@
       if (!muted) redVoice.play();
       bgMusic.pause();
       musicPlaying = false;
+      showStatus('RED LIGHT', 'red');
     }
 
     function playEliminated() {
       if (!muted) eliminatedSound.play();
+      showStatus('ELIMINATED', 'red');
     }
 
     function toggleFullscreen() {
