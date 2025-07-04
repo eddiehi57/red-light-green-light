@@ -41,14 +41,14 @@
     }
 
     #robot {
-      max-width: 90vw;
-      max-height: 60vh;
-      height: auto;
+      max-height: 100vh;
+      height: 100vh;
       width: auto;
       transition: transform 1s ease;
       margin-bottom: 20px;
       border-radius: 20px;
       cursor: pointer;
+      object-fit: contain;
     }
 
     .gif-pop {
@@ -65,10 +65,13 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
-      opacity: 1;
+      opacity: 1 !important;
       transition: opacity 0.5s;
-      position: relative;
-      z-index: 10;
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
     }
 
     button {
@@ -229,12 +232,14 @@
         document.documentElement.requestFullscreen();
         fullscreenMode = true;
         fullscreenBtn.classList.add('active');
-        hideButtons();
+        buttonPanel.style.opacity = '0';
+        buttonPanel.style.pointerEvents = 'none';
       } else {
         document.exitFullscreen();
         fullscreenMode = false;
         fullscreenBtn.classList.remove('active');
-        showButtons();
+        buttonPanel.style.opacity = '1';
+        buttonPanel.style.pointerEvents = 'auto';
       }
     }
 
@@ -276,22 +281,6 @@
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
       return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
-
-    function hideButtons() {
-      for (const btn of buttonPanel.children) {
-        if (btn.id !== 'fullscreenBtn') {
-          btn.style.opacity = '0';
-          btn.style.pointerEvents = 'none';
-        }
-      }
-    }
-
-    function showButtons() {
-      for (const btn of buttonPanel.children) {
-        btn.style.opacity = '1';
-        btn.style.pointerEvents = 'auto';
-      }
     }
 
     document.addEventListener('keydown', (e) => {
